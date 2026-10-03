@@ -1,0 +1,406 @@
+<title>Brillen Voigt Liquid Konzept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Albert+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: eine fließende Spalte (max 1180px), Hero asymmetrisch 7/5, Glas-Komponenten schweben über einem animierten Liquid-Hintergrund in Entspiegelungs-Farben (grün-violetter Restreflex). */
+:root{
+  --bg:#f3f6fa;            /* kühles Weiß mit Blaustich */
+  --bg-2:#e8eef6;
+  --fg:#0d1626;            /* Tinte, nicht schwarz */
+  --fg-2:#4b5970;
+  --line:rgba(13,22,38,.10);
+  --glass:rgba(255,255,255,.55);
+  --glass-strong:rgba(255,255,255,.78);
+  --glass-line:rgba(255,255,255,.75);
+  --accent:#0f8a86;        /* Teal: Optik / Linse */
+  --accent-2:#7a68e0;      /* Lilac: Restreflex der Entspiegelung */
+  --accent-3:#3fd3b0;      /* Aqua Highlight */
+  --accent-fg:#ffffff;
+  --shadow:0 20px 60px -24px rgba(13,22,38,.35), 0 2px 8px -2px rgba(13,22,38,.12);
+  --blob-a:rgba(63,211,176,.55);
+  --blob-b:rgba(122,104,224,.45);
+  --blob-c:rgba(15,138,134,.40);
+  --ok:#1f9d55; --warn:#c98a12; --crit:#c9403a;
+  --f-display:"Outfit",ui-sans-serif,system-ui,"Segoe UI",sans-serif;
+  --f-body:"Albert Sans",ui-sans-serif,system-ui,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --r:22px; --r-s:14px;
+  --space:clamp(4rem,9vw,8rem);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0a111d; --bg-2:#101a2a; --fg:#eef2f8; --fg-2:#9aa8bd; --line:rgba(238,242,248,.10);
+  --glass:rgba(22,32,50,.50); --glass-strong:rgba(22,32,50,.80); --glass-line:rgba(255,255,255,.14);
+  --accent:#36c5bf; --accent-2:#a596ff; --accent-3:#5ff0c8; --accent-fg:#071015;
+  --shadow:0 24px 70px -28px rgba(0,0,0,.8), 0 2px 8px -2px rgba(0,0,0,.5);
+  --blob-a:rgba(63,211,176,.30); --blob-b:rgba(122,104,224,.38); --blob-c:rgba(15,138,134,.35);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0a111d; --bg-2:#101a2a; --fg:#eef2f8; --fg-2:#9aa8bd; --line:rgba(238,242,248,.10);
+  --glass:rgba(22,32,50,.50); --glass-strong:rgba(22,32,50,.80); --glass-line:rgba(255,255,255,.14);
+  --accent:#36c5bf; --accent-2:#a596ff; --accent-3:#5ff0c8; --accent-fg:#071015;
+  --shadow:0 24px 70px -28px rgba(0,0,0,.8), 0 2px 8px -2px rgba(0,0,0,.5);
+  --blob-a:rgba(63,211,176,.30); --blob-b:rgba(122,104,224,.38); --blob-c:rgba(15,138,134,.35);
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:clamp(1rem,.95rem + .25vw,1.125rem);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+#liquid{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;filter:blur(40px) saturate(1.2)}
+.page{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding-inline:clamp(16px,4vw,40px);padding-block:0 6rem}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.05;letter-spacing:-.02em}
+h1{font-size:clamp(2.6rem,2rem + 4.2vw,5.4rem);font-weight:600}
+h2{font-size:clamp(1.9rem,1.5rem + 1.8vw,3rem);font-weight:600}
+h3{font-size:1.2rem;font-weight:600;letter-spacing:-.01em}
+p{margin:0}
+.lede{color:var(--fg-2);max-width:62ch}
+.eyebrow{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:500}
+a{color:inherit}
+code,.mono{font-family:var(--f-mono);font-size:.86em}
+
+/* Glas */
+.glass{background:var(--glass);backdrop-filter:blur(22px) saturate(1.6);-webkit-backdrop-filter:blur(22px) saturate(1.6);border:1px solid var(--glass-line);box-shadow:var(--shadow);border-radius:var(--r)}
+.glass.strong{background:var(--glass-strong)}
+
+/* Nav */
+.nav{position:sticky;top:calc(env(safe-area-inset-top,0px) + 14px);z-index:5;margin-block:18px 0;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.6rem .6rem .6rem 1.2rem;border-radius:999px}
+.brand{font-family:var(--f-display);font-weight:600;letter-spacing:-.01em;display:flex;align-items:center;gap:.6rem}
+.brand i{width:12px;height:12px;border-radius:50%;background:linear-gradient(135deg,var(--accent-3),var(--accent-2));box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 20%,transparent)}
+.nav ul{display:flex;gap:1.4rem;list-style:none;margin:0;padding:0;font-size:.92rem;color:var(--fg-2)}
+.nav li:nth-child(n+3){display:none}
+@media(min-width:760px){.nav li:nth-child(n+3){display:block}}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.25rem;border-radius:999px;font-weight:600;font-size:.95rem;text-decoration:none;border:1px solid transparent;cursor:pointer;font-family:var(--f-body);transition:transform .25s ease,box-shadow .25s ease}
+.btn.primary{background:linear-gradient(120deg,var(--accent),var(--accent-2));color:var(--accent-fg);box-shadow:0 10px 30px -12px var(--accent)}
+.btn.primary:hover{transform:translateY(-2px);box-shadow:0 16px 36px -12px var(--accent)}
+.btn.ghost{background:var(--glass);border-color:var(--line);color:var(--fg)}
+.btn:focus-visible{outline:3px solid var(--accent-3);outline-offset:3px}
+
+/* Hero */
+.hero{display:grid;grid-template-columns:1fr;gap:2.5rem;align-items:center;padding-block:clamp(3.5rem,8vw,7rem) var(--space)}
+@media(min-width:900px){.hero{grid-template-columns:7fr 5fr}}
+.hero .copy{display:grid;gap:1.4rem}
+.hero .actions{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:.4rem}
+.trust{display:flex;flex-wrap:wrap;gap:1.2rem 2rem;color:var(--fg-2);font-size:.9rem;margin-top:.6rem}
+.trust b{display:block;font-family:var(--f-display);font-size:1.5rem;color:var(--fg);font-variant-numeric:tabular-nums;line-height:1.1}
+.stack{position:relative;min-height:380px}
+.float{position:absolute;padding:1.2rem 1.3rem;width:min(290px,78%);display:grid;gap:.5rem;animation:drift 9s ease-in-out infinite;will-change:transform}
+.float h3{font-size:1.05rem}
+.float p{font-size:.9rem;color:var(--fg-2)}
+.float .tag{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.float:nth-child(1){top:0;left:0;animation-delay:0s}
+.float:nth-child(2){top:40%;right:0;animation-delay:-3s}
+.float:nth-child(3){bottom:0;left:12%;animation-delay:-6s}
+@keyframes drift{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-14px) rotate(-.4deg)}}
+.lens{position:absolute;inset:auto;right:6%;top:4%;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.9),rgba(255,255,255,.1) 45%,transparent 60%),conic-gradient(from 200deg,var(--accent-3),var(--accent-2),var(--accent),var(--accent-3));opacity:.55;filter:blur(1px);mix-blend-mode:soft-light;animation:spin 40s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Sektionen */
+section{padding-block:var(--space) 0}
+.sec-head{display:grid;gap:.9rem;max-width:62ch;margin-bottom:2.6rem}
+.grid{display:grid;gap:1.2rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.card{padding:1.6rem;display:grid;gap:.7rem;align-content:start;transition:transform .35s ease,box-shadow .35s ease}
+.card:hover{transform:translateY(-6px)}
+.card .num{font-family:var(--f-mono);font-size:.74rem;color:var(--fg-2);letter-spacing:.1em}
+.card ul{margin:.3rem 0 0;padding-left:1.1rem;color:var(--fg-2);font-size:.94rem;display:grid;gap:.3rem}
+.pill{display:inline-flex;align-items:center;gap:.4rem;font-size:.74rem;font-family:var(--f-mono);letter-spacing:.06em;padding:.3rem .65rem;border-radius:999px;border:1px solid var(--line);color:var(--fg-2);width:max-content}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.pill.mid::before{background:var(--warn)}
+.pill.big::before{background:var(--accent-2)}
+
+/* Vorher / Nachher */
+.compare{display:grid;gap:1.2rem;grid-template-columns:1fr}
+@media(min-width:800px){.compare{grid-template-columns:1fr 1fr}}
+.compare .glass{padding:1.6rem;display:grid;gap:1rem}
+.compare h3{display:flex;align-items:center;gap:.6rem}
+.compare h3 span{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;padding:.25rem .6rem;border-radius:999px;background:var(--bg-2);color:var(--fg-2)}
+.compare dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:.5rem 1rem;font-size:.94rem}
+.compare dt{color:var(--fg-2);font-family:var(--f-mono);font-size:.78rem;padding-top:.15rem}
+.compare dd{margin:0}
+
+/* Komponenten-Demo */
+.demo{padding:clamp(1.4rem,4vw,2.6rem);display:grid;gap:2rem}
+.demo-row{display:grid;gap:1.2rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+.service{padding:1.3rem;display:grid;gap:.6rem;border-radius:var(--r-s);background:var(--glass-strong);border:1px solid var(--glass-line);box-shadow:var(--shadow);transition:transform .3s ease}
+.service:hover{transform:translateY(-4px) scale(1.01)}
+.service .ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 25%,transparent),color-mix(in srgb,var(--accent-2) 25%,transparent))}
+.service .ico svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.service p{font-size:.9rem;color:var(--fg-2)}
+.branches{display:grid;gap:.8rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr))}
+.branch{padding:1rem;border-radius:var(--r-s);border:1px dashed var(--line);display:grid;gap:.3rem;font-size:.9rem;background:color-mix(in srgb,var(--glass) 60%,transparent)}
+.branch b{font-family:var(--f-display)}
+.branch small{color:var(--fg-2)}
+.note{font-size:.84rem;color:var(--fg-2);border-left:2px solid var(--accent-2);padding-left:.8rem}
+.cta-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;padding:1.2rem 1.4rem;border-radius:var(--r)}
+.cta-bar .t{display:grid;gap:.2rem}
+.cta-bar small{color:var(--fg-2)}
+
+/* Tokens & Code */
+pre{margin:0;padding:1.2rem 1.3rem;border-radius:var(--r-s);background:var(--bg-2);border:1px solid var(--line);overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-height:1.55;color:var(--fg)}
+.tokens{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr))}
+.tok{display:grid;gap:.5rem;font-size:.82rem}
+.tok .sw{height:56px;border-radius:var(--r-s);border:1px solid var(--line)}
+.tok code{color:var(--fg-2)}
+.type-scale{display:grid;gap:.8rem}
+.type-scale div{display:flex;align-items:baseline;gap:1rem;border-bottom:1px solid var(--line);padding-bottom:.6rem;flex-wrap:wrap}
+.type-scale code{color:var(--fg-2);min-width:16ch}
+.type-scale span{font-family:var(--f-display)}
+
+/* Tabelle */
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem;min-width:620px}
+th,td{text-align:left;padding:.75rem .8rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-2);font-weight:500}
+td:first-child{font-weight:600}
+.rank{font-family:var(--f-mono);font-variant-numeric:tabular-nums;color:var(--fg-2)}
+
+footer{margin-top:var(--space);padding-top:2rem;border-top:1px solid var(--line);color:var(--fg-2);font-size:.86rem;display:grid;gap:.5rem}
+
+@media (prefers-reduced-motion: reduce){
+  .float,.lens{animation:none}
+  .card,.service,.btn{transition:none}
+  #liquid{display:none}
+  body{background:linear-gradient(160deg,var(--bg),var(--bg-2))}
+}
+</style>
+
+<canvas id="liquid" aria-hidden="true"></canvas>
+
+<div class="page">
+  <nav class="nav glass" aria-label="Hauptnavigation">
+    <div class="brand"><i></i>Brillen Voigt</div>
+    <ul>
+      <li>Brillen</li><li>Hörakustik</li><li>Kontaktlinsen</li><li>Filialen</li><li>Über uns</li>
+    </ul>
+    <a class="btn primary" href="#termin">Termin buchen</a>
+  </nav>
+
+  <header class="hero">
+    <div class="copy">
+      <span class="eyebrow">Designkonzept · Floating Liquid</span>
+      <h1>Sehen und Hören, in Bewegung seit 1929.</h1>
+      <p class="lede">So könnte die Startseite wirken: ein ruhig fließender Hintergrund in den Farben einer Entspiegelung, darüber schwebende Glasflächen mit genau drei Wegen für Besucher. Termin, Hörtest, Filiale.</p>
+      <div class="actions">
+        <a class="btn primary" href="#termin">Sehtest-Termin</a>
+        <a class="btn ghost" href="#komponenten">Online-Hörtest</a>
+      </div>
+      <div class="trust">
+        <div><b>1929</b>Familienbetrieb</div>
+        <div><b>6</b>Filialen</div>
+        <div><b>2</b>Bundesländer: Bayern &amp; Hessen</div>
+      </div>
+    </div>
+    <div class="stack" aria-label="Schwebende Beispielkarten">
+      <div class="lens"></div>
+      <div class="float glass"><span class="tag">Optik</span><h3>Sehtest in 20 Minuten</h3><p>Termin online wählen, Filiale aussuchen, Bestätigung aufs Handy.</p></div>
+      <div class="float glass strong"><span class="tag">Hörakustik</span><h3>Hörtest zuhause starten</h3><p>Drei Minuten am Laptop, Ergebnis gleich mit in die Filiale nehmen.</p></div>
+      <div class="float glass"><span class="tag">Vor Ort</span><h3>Nächste Filiale</h3><p>Von Schweinfurt bis Wiesbaden, Öffnungszeiten live, Route in einem Tipp.</p></div>
+    </div>
+  </header>
+
+  <section id="idee">
+    <div class="sec-head">
+      <span class="eyebrow">Die Idee</span>
+      <h2>Liquid ist der Hintergrund, Floating ist der Inhalt.</h2>
+      <p class="lede">Zwei Ebenen, strikt getrennt. Unten eine langsam fließende Farbfläche, die die Marke trägt. Oben Glasflächen, die den Inhalt tragen und über der Fläche schweben. Der Inhalt bewegt sich nur, wenn der Besucher etwas tut: scrollt, hovert, tippt.</p>
+    </div>
+    <div class="compare">
+      <div class="glass">
+        <h3><span>Ebene 1</span>Liquid-Hintergrund</h3>
+        <dl>
+          <dt>Was</dt><dd>Drei bis vier weiche Farbblobs (Metaballs) auf einem Canvas, stark weichgezeichnet.</dd>
+          <dt>Farben</dt><dd>Teal, Lilac, Aqua. Das ist der grün-violette Restreflex einer Superentspiegelung. Ein Detail, das nur ein Optiker so wählen würde.</dd>
+          <dt>Tempo</dt><dd>Eine Vollbewegung dauert 20 bis 40 Sekunden. Niemand soll die Bewegung bewusst sehen, nur spüren.</dd>
+          <dt>Kosten</dt><dd>Ein Canvas, kein Video. Bei Reduced Motion wird daraus ein statischer Verlauf.</dd>
+        </dl>
+      </div>
+      <div class="glass">
+        <h3><span>Ebene 2</span>Floating-Glas</h3>
+        <dl>
+          <dt>Was</dt><dd>Navigation als schwebende Pille, Karten mit Blur-Hintergrund, 1px helle Innenkante, weicher Schatten nach unten.</dd>
+          <dt>Tiefe</dt><dd>Drei Höhenstufen: Fläche (0), Karte (1), Dialog (2). Jede Stufe hat ihren eigenen Blur- und Schattenwert.</dd>
+          <dt>Bewegung</dt><dd>Karten driften 10 bis 14px in 9 Sekunden. Hover hebt um 6px. Mehr nicht.</dd>
+          <dt>Regel</dt><dd>Maximal 6 Glasflächen gleichzeitig im Viewport, sonst leidet die Performance auf älteren Handys.</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section id="vorschlaege">
+    <div class="sec-head">
+      <span class="eyebrow">Optimierungsvorschläge</span>
+      <h2>Zehn Entscheidungen, die den Unterschied machen.</h2>
+      <p class="lede">Jede Karte zeigt die Maßnahme, die konkreten Regeln und den Aufwand. Die Reihenfolge ist keine Wertung.</p>
+    </div>
+    <div class="grid">
+      <article class="card glass"><span class="pill">Quick Win</span><h3>Fluide Typografie statt Breakpoints</h3><p class="lede">Schriftgrößen wachsen stufenlos mit der Viewport-Breite. Ein Headline-Sprung bei 768px wirkt billig.</p><ul><li>Display-Schrift: geometrisch, runde Formen (Linsen, Fassungen)</li><li>Body: humanistische Sans, 65 Zeichen Zeilenbreite</li><li>Skala mit clamp(), siehe Spezifikation unten</li></ul></article>
+      <article class="card glass"><span class="pill mid">Mittel</span><h3>Liquid-Hintergrund als Markenebene</h3><p class="lede">Canvas mit drei Blobs in Entspiegelungsfarben ersetzt Stockfotos im Hero.</p><ul><li>Blur 40px, Sättigung 1.2, Opazität je Theme</li><li>Bewegung an Mausposition leicht gekoppelt (Faktor 0.05)</li><li>Fallback: statischer Verlauf bei Reduced Motion</li></ul></article>
+      <article class="card glass"><span class="pill mid">Mittel</span><h3>Glas-Komponentensystem</h3><p class="lede">Ein Set aus Pille, Karte, Dialog und Leiste. Alles aus denselben Tokens.</p><ul><li>backdrop-filter: blur(22px) saturate(1.6)</li><li>Innenkante 1px, 75% Weiß hell, 14% Weiß dunkel</li><li>Radius 22px außen, 14px innen</li></ul></article>
+      <article class="card glass"><span class="pill">Quick Win</span><h3>Drei Wege, sonst nichts</h3><p class="lede">Hero zeigt genau drei Aktionen: Sehtest-Termin, Online-Hörtest, Filiale finden.</p><ul><li>Primär-Button mit Verlauf Teal zu Lilac</li><li>Mobil: Termin-Button bleibt unten fixiert</li><li>Jede Aktion in maximal zwei Klicks erledigt</li></ul></article>
+      <article class="card glass"><span class="pill big">Groß</span><h3>Produkte schweben frei</h3><p class="lede">Fassungen auf transparentem Hintergrund, mit weichem Schatten, auf dem Liquid-Grund. Kein Produktfoto mit weißem Kasten.</p><ul><li>PNG/WebP mit Alpha, 1600px, unter 120 KB</li><li>Farbvarianten per Tipp wechseln, Bild blendet 300ms</li><li>Hover kippt die Fassung 3 Grad (3D-Transform)</li></ul></article>
+      <article class="card glass"><span class="pill mid">Mittel</span><h3>Motion-Choreografie</h3><p class="lede">Ein orchestrierter Moment beim Laden, danach Ruhe. Verstreute Effekte wirken generiert.</p><ul><li>Hero: Text 0ms, Karten gestaffelt 120ms, Blobs 600ms</li><li>Scroll: Karten parallax maximal 24px</li><li>Alle Dauern aus einem Token-Set: 250 / 350 / 600ms</li></ul></article>
+      <article class="card glass"><span class="pill">Quick Win</span><h3>Vertrauensleiste mit echten Zahlen</h3><p class="lede">1929, 6 Filialen, zwei Fachbereiche. Große Ziffern in der Display-Schrift, direkt unter dem Hero.</p><ul><li>Nur belegbare Zahlen, keine Floskeln</li><li>Tabular-Nums, damit Ziffern bündig stehen</li><li>Optional: Bewertungen aus Google, live eingebunden</li></ul></article>
+      <article class="card glass"><span class="pill mid">Mittel</span><h3>Filialfinder als Glasraster</h3><p class="lede">Sechs Kacheln, jede mit Öffnungszustand (offen / schließt bald / geschlossen) als Farbpunkt.</p><ul><li>Zustand aus Öffnungszeiten berechnet, nicht gepflegt</li><li>Route per Tipp, Telefonnummer als kopierbarer Text</li><li>Reihenfolge nach Entfernung, wenn Standort erlaubt</li></ul></article>
+      <article class="card glass"><span class="pill">Quick Win</span><h3>Dark Mode aus denselben Tokens</h3><p class="lede">Glas auf dunkler Tinte wirkt hochwertiger als auf Weiß. Beide Themes werden gleich sorgfältig gestaltet.</p><ul><li>Blobs im Dark Mode 30 bis 38% Opazität</li><li>Akzente aufhellen, damit Kontrast AA bleibt</li><li>color-scheme: dark für native Controls</li></ul></article>
+      <article class="card glass"><span class="pill big">Groß</span><h3>Performance-Budget</h3><p class="lede">Glas und Blur kosten GPU. Ohne Budget ruckelt die Seite auf dem iPhone der Kundin.</p><ul><li>LCP unter 2,5 s, CLS unter 0,1, INP unter 200 ms</li><li>Maximal 6 backdrop-filter-Flächen im Viewport</li><li>Canvas pausiert, wenn Tab unsichtbar (visibilitychange)</li></ul></article>
+    </div>
+  </section>
+
+  <section id="komponenten">
+    <div class="sec-head">
+      <span class="eyebrow">Komponenten-Demo</span>
+      <h2>So fühlen sich die Bausteine an.</h2>
+      <p class="lede">Live gerendert aus den Tokens dieser Seite. Hover und Fokus sind aktiv.</p>
+    </div>
+    <div class="demo glass">
+      <div class="demo-row">
+        <div class="service"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="7" cy="13" r="4"/><circle cx="17" cy="13" r="4"/><path d="M11 13h2M3 13l2-6h3M21 13l-2-6h-3"/></svg></div><h3>Brillen &amp; Sehtest</h3><p>Fassungen anprobieren, Gläser beraten, Sehtest vor Ort.</p></div>
+        <div class="service"><div class="ico"><svg viewBox="0 0 24 24"><path d="M6 10a6 6 0 0 1 12 0c0 3-2 4-2 6a3 3 0 0 1-6 0"/><path d="M9 10a3 3 0 0 1 6 0"/></svg></div><h3>Hörakustik</h3><p>Hörtest, Anpassung, Nachsorge. Alle Kassen.</p></div>
+        <div class="service"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg></div><h3>Kontaktlinsen</h3><p>Anpassung und Abo. Nachbestellung online.</p></div>
+        <div class="service"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><h3>Filialen</h3><p>Schweinfurt, Hammelburg, Bad Brückenau, Ebersdorf, Bayreuth, Wiesbaden.</p></div>
+      </div>
+
+      <div>
+        <p class="eyebrow" style="margin-bottom:.8rem">Filialfinder · Öffnungszustand wird live berechnet</p>
+        <div class="branches" id="branches"></div>
+        <p class="note" style="margin-top:.9rem">Adressen, Telefonnummern und Öffnungszeiten stammen aus Suchergebnissen zu brillen-voigt.de (Stand 03.10.2026). Die Seite selbst war aus dieser Umgebung nicht abrufbar, die Daten sind also noch nicht gegen die Originalseite geprüft.</p>
+      </div>
+
+      <div class="cta-bar glass strong" id="termin">
+        <div class="t"><b>Termin in zwei Schritten</b><small>Leistung wählen, Zeit wählen. Bestätigung per SMS oder E-Mail.</small></div>
+        <a class="btn primary" href="#termin">Jetzt Termin wählen</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="spezifikation">
+    <div class="sec-head">
+      <span class="eyebrow">Spezifikation</span>
+      <h2>Tokens, Typo-Skala und der Liquid-Code.</h2>
+      <p class="lede">Alles, was ein Entwickler braucht, um das Konzept eins zu eins umzusetzen. Die Werte sind dieselben, die diese Seite rendern.</p>
+    </div>
+    <div class="grid" style="grid-template-columns:1fr">
+      <div class="card glass">
+        <h3>Farb-Tokens</h3>
+        <div class="tokens">
+          <div class="tok"><div class="sw" style="background:var(--bg)"></div><b>--bg</b><code>Grund, kühl</code></div>
+          <div class="tok"><div class="sw" style="background:var(--fg)"></div><b>--fg</b><code>Tinte</code></div>
+          <div class="tok"><div class="sw" style="background:var(--accent)"></div><b>--accent</b><code>Teal, Optik</code></div>
+          <div class="tok"><div class="sw" style="background:var(--accent-2)"></div><b>--accent-2</b><code>Lilac, Restreflex</code></div>
+          <div class="tok"><div class="sw" style="background:var(--accent-3)"></div><b>--accent-3</b><code>Aqua, Highlight</code></div>
+          <div class="tok"><div class="sw glass"></div><b>--glass</b><code>Blur 22px</code></div>
+        </div>
+      </div>
+      <div class="card glass">
+        <h3>Typo-Skala (fluid)</h3>
+        <div class="type-scale">
+          <div><code>h1 · clamp(2.6rem, 5.4rem)</code><span style="font-size:clamp(1.8rem,3vw,2.6rem);font-weight:600">Sehen und Hören</span></div>
+          <div><code>h2 · clamp(1.9rem, 3rem)</code><span style="font-size:clamp(1.4rem,2.2vw,1.9rem);font-weight:600">Unsere Filialen</span></div>
+          <div><code>h3 · 1.2rem</code><span style="font-size:1.2rem;font-weight:600">Sehtest in 20 Minuten</span></div>
+          <div><code>body · 1 bis 1.125rem</code><span style="font-family:var(--f-body)">Termin online wählen, Filiale aussuchen.</span></div>
+          <div><code>mono · 0.74rem, +.14em</code><span class="eyebrow">Optik · Hörakustik</span></div>
+        </div>
+      </div>
+      <div class="card glass">
+        <h3>Liquid-Hintergrund (Canvas, 40 Zeilen)</h3>
+<pre>const c = document.getElementById('liquid'), x = c.getContext('2d');
+const blobs = [
+  { col: 'var(--blob-a)', r: .38, sx: .00011, sy: .00009, px: 0.0, py: 1.7 },
+  { col: 'var(--blob-b)', r: .34, sx: .00008, sy: .00012, px: 2.1, py: 0.4 },
+  { col: 'var(--blob-c)', r: .30, sx: .00013, sy: .00007, px: 4.2, py: 3.1 },
+];
+function frame(t) {
+  const w = c.width, h = c.height; x.clearRect(0, 0, w, h);
+  for (const b of blobs) {
+    const bx = w * (.5 + .38 * Math.sin(t * b.sx + b.px));
+    const by = h * (.5 + .34 * Math.cos(t * b.sy + b.py));
+    const g = x.createRadialGradient(bx, by, 0, bx, by, b.r * Math.min(w, h));
+    g.addColorStop(0, color(b.col)); g.addColorStop(1, 'transparent');
+    x.fillStyle = g; x.fillRect(0, 0, w, h);
+  }
+  if (!document.hidden) requestAnimationFrame(frame);
+}
+// CSS: #liquid { position: fixed; inset: 0; filter: blur(40px) saturate(1.2) }
+// Reduced Motion: Canvas ausblenden, statischen Verlauf auf body setzen.</pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="plan">
+    <div class="sec-head">
+      <span class="eyebrow">Umsetzung</span>
+      <h2>Reihenfolge nach Wirkung pro Aufwand.</h2>
+    </div>
+    <div class="card glass tbl">
+      <table>
+        <thead><tr><th>Maßnahme</th><th>Aufwand</th><th>Wirkung</th><th>Messgröße</th></tr></thead>
+        <tbody>
+          <tr><td>Drei Wege im Hero + fixierter Termin-Button mobil</td><td>1 Tag</td><td>Hoch</td><td>Terminbuchungen pro Besuch</td></tr>
+          <tr><td>Fluide Typo-Skala und Token-System</td><td>1 bis 2 Tage</td><td>Hoch</td><td>Scroll-Tiefe, Absprungrate</td></tr>
+          <tr><td>Vertrauensleiste mit echten Zahlen</td><td>½ Tag</td><td>Mittel</td><td>Klickrate auf Termin-CTA</td></tr>
+          <tr><td>Liquid-Canvas mit Reduced-Motion-Fallback</td><td>2 Tage</td><td>Hoch</td><td>Verweildauer, LCP unter 2,5 s</td></tr>
+          <tr><td>Glas-Komponenten (Nav, Karte, Dialog, Leiste)</td><td>3 Tage</td><td>Hoch</td><td>INP unter 200 ms</td></tr>
+          <tr><td>Dark Mode</td><td>1 Tag</td><td>Mittel</td><td>Nutzung nach Tageszeit</td></tr>
+          <tr><td>Filialfinder mit Live-Öffnungszustand</td><td>2 bis 3 Tage</td><td>Hoch</td><td>Routen-Klicks, Anrufe</td></tr>
+          <tr><td>Freischwebende Produktbilder mit Farbwechsel</td><td>5+ Tage inkl. Fotos</td><td>Hoch</td><td>Produktseiten pro Besuch</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <p><b>Grundlage dieses Konzepts.</b> Die aktuelle Webseite brillen-voigt.de war aus dieser Umgebung nicht abrufbar (Netzwerk blockiert). Alle Vorschläge beruhen auf den bekannten Fakten zur Marke: Optiker und Hörakustik, Familienbetrieb seit 1929, sechs Filialen. Filialdaten stammen aus Suchergebnissen, Produkttexte sind Beispiele.</p>
+    <p>Aufwandsangaben sind Schätzungen für einen erfahrenen Frontend-Entwickler und müssen mit der Agentur geprüft werden.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  // Öffnungszeiten je Wochentag (0=So … 6=Sa) als [von, bis] in Stunden; null = geschlossen.
+  const B=[
+    {n:'Schweinfurt',a:'Spitalstraße 2, 97421',t:'09721 71820',h:{1:[9,18],2:[9,18],3:[9,18],4:[9,18],5:[9,18],6:[9,14]}},
+    {n:'Hammelburg',a:'Kissinger Straße 3-5, 97762',t:'09732 1090',h:{1:[9,18],2:[9,18],3:[9,18],4:[9,18],5:[9,18],6:[9,13]}},
+    {n:'Bad Brückenau',a:'Ludwigstraße 23, 97769',t:'09741 2349',h:{1:[9,18],2:[9,18],3:[9,13],4:[9,18],5:[9,18],6:[9,13]}},
+    {n:'Ebersdorf b. Coburg',a:'Canterstraße 31, 96237',t:'09562 403284',h:{2:[9,18],3:[9,18],4:[9,18],5:[9,18],6:[9,13]}},
+    {n:'Bayreuth',a:'Maximilianstraße 66, 95444',t:'0921 5073434',h:{1:[9,18],2:[9,18],3:[9,18],4:[9,18],5:[9,18]}},
+    {n:'Wiesbaden',a:'Langgasse 18, 65183',t:'0611 71692376',h:{1:[10,19],2:[10,19],3:[10,19],4:[10,19],5:[10,19],6:[10,19]}}
+  ];
+  const now=new Date(new Date().toLocaleString('en-US',{timeZone:'Europe/Berlin'}));
+  const d=now.getDay(),hh=now.getHours()+now.getMinutes()/60;
+  const el=document.getElementById('branches');if(!el)return;
+  el.innerHTML=B.map(b=>{
+    const r=b.h[d];let cls='big',txt='geschlossen';
+    if(r&&hh>=r[0]&&hh<r[1]){if(r[1]-hh<=1){cls='mid';txt='schließt bald'}else{cls='';txt='offen bis '+r[1]+':00'}}
+    const hours=Object.keys(b.h).length;
+    return `<div class="branch"><b>${b.n}</b><small>${b.a}</small><small class="mono">${b.t}</small><span class="pill ${cls}">${txt}</span></div>`;
+  }).join('');
+})();
+</script>
+
+<script>
+(function(){
+  const c=document.getElementById('liquid');if(!c)return;
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;if(reduce)return;
+  const x=c.getContext('2d');let w,h,dpr;
+  const cs=getComputedStyle(document.documentElement);
+  const read=()=>['--blob-a','--blob-b','--blob-c'].map(v=>cs.getPropertyValue(v).trim());
+  let cols=read();
+  const blobs=[{r:.38,sx:.00011,sy:.00009,px:0,py:1.7},{r:.34,sx:.00008,sy:.00012,px:2.1,py:.4},{r:.30,sx:.00013,sy:.00007,px:4.2,py:3.1}];
+  let mx=.5,my=.5,tx=.5,ty=.5;
+  function size(){dpr=Math.min(devicePixelRatio||1,1.5);w=c.width=Math.floor(innerWidth*dpr*.5);h=c.height=Math.floor(innerHeight*dpr*.5)}
+  size();addEventListener('resize',size);
+  addEventListener('pointermove',e=>{tx=e.clientX/innerWidth;ty=e.clientY/innerHeight},{passive:true});
+  const mo=new MutationObserver(()=>{cols=read()});mo.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{cols=read()});
+  function frame(t){
+    mx+=(tx-mx)*.02;my+=(ty-my)*.02;x.clearRect(0,0,w,h);
+    blobs.forEach((b,i)=>{
+      const bx=w*(.5+.38*Math.sin(t*b.sx+b.px)+(mx-.5)*.08*(i+1));
+      const by=h*(.5+.34*Math.cos(t*b.sy+b.py)+(my-.5)*.08*(i+1));
+      const g=x.createRadialGradient(bx,by,0,bx,by,b.r*Math.min(w,h)*1.4);
+      g.addColorStop(0,cols[i]||'rgba(63,211,176,.4)');g.addColorStop(1,'rgba(0,0,0,0)');
+      x.fillStyle=g;x.fillRect(0,0,w,h);
+    });
+    if(!document.hidden)requestAnimationFrame(frame);
+  }
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)requestAnimationFrame(frame)});
+  requestAnimationFrame(frame);
+})();
+</script>
